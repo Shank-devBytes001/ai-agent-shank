@@ -21,6 +21,8 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
+  'https://backbenchersclub.in',
+  'https://www.backbenchersclub.in',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
@@ -29,7 +31,13 @@ app.use(cors({
     // Allow requests with no origin (mobile apps, curl, etc.)
     if (!origin) return callback(null, true);
     
-    if (allowedOrigins.some(allowed => origin.startsWith(allowed.replace(/\/$/, '')))) {
+    // Check if origin is in allowed list
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Allow backbenchersclub.in with or without www
+    if (origin.includes('backbenchersclub.in')) {
       return callback(null, true);
     }
     
@@ -38,6 +46,7 @@ app.use(cors({
       return callback(null, true);
     }
     
+    console.log('CORS blocked origin:', origin);
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true
