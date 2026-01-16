@@ -1,0 +1,22 @@
+# Render.com Blueprint specification
+services:
+  - type: web
+    name: shank-ai-backend
+    env: node
+    plan: free
+    buildCommand: npm install && npx prisma generate
+    startCommand: node src/index.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: FRONTEND_URL
+        sync: false

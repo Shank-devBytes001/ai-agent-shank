@@ -1,0 +1,75 @@
+// Prisma Schema for Chatbot Platform
+// Database: SQLite (for easy local development)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// User model for authentication
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  
+  // Relations
+  projects  Project[]
+  
+  @@map("users")
+}
+
+// Project/Agent model
+model Project {
+  id           String    @id @default(uuid())
+  name         String
+  description  String?
+  systemPrompt String?   @map("system_prompt")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  
+  // Relations
+  userId       String    @map("user_id")
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages     Message[]
+  files        File[]
+  
+  @@map("projects")
+}
+
+// Message model for chat history
+model Message {
+  id        String   @id @default(uuid())
+  role      String
+  content   String
+  createdAt DateTime @default(now())
+  
+  // Relations
+  projectId String   @map("project_id")
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  @@map("messages")
+}
+
+// File model for uploaded files
+model File {
+  id         String   @id @default(uuid())
+  filename   String
+  originalName String @map("original_name")
+  mimeType   String   @map("mime_type")
+  size       Int
+  path       String
+  createdAt  DateTime @default(now())
+  
+  // Relations
+  projectId  String   @map("project_id")
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  @@map("files")
+}
